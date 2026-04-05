@@ -11,15 +11,8 @@ def receive_messages(sock):
                 print("\n[Система] Соединение разорвано сервером.")
                 break
             
-            if data.startswith("LIST|"):
-                users = data.split('|')[1]
-                print(f"\n[Система] В сети: {users}")
-                print("Кому отправить (имя или all) > ", end="", flush=True)
-                
-            elif data.startswith("MSG|"):
-                content = data.split('|', 1)[1]
-                print(f"\n{content}")
-                print("Кому отправить (имя или all) > ", end="", flush=True)
+            print(data, end="", flush=True)
+            print("> ", end="", flush=True)
                 
         except ConnectionResetError:
             print("\n[Система] Соединение разорвано.")
@@ -50,19 +43,14 @@ def start_client():
     recv_thread = threading.Thread(target=receive_messages, args=(client,), daemon=True)
     recv_thread.start()
 
-    print("Подключение успешно. Для выхода нажмите Ctrl+C.")
+    print("> ", end="", flush=True)
     
     while True:
         try:
-            target = input("Кому отправить (имя или all) > ")
-            if not target:
+            msg = input() 
+            if not msg:
                 continue
-            
-            msg = input("Сообщение (используйте <@> для конвертации) > ")
-            
-            payload = f"TARGETS:{target}|MESSAGE:{msg}"
-            client.send(payload.encode('utf-8'))
-            
+            client.send(msg.encode('utf-8'))
         except KeyboardInterrupt:
             print("\nВыход...")
             break
